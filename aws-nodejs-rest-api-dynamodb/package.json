@@ -1,0 +1,14 @@
+{
+  "name": "aws-nodejs-rest-api-dynamodb",
+  "version": "1.0.0",
+  "description": "Serverless CRUD service exposing a REST HTTP interface",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Sanjib Behera",
+  "license": "ISC",
+  "dependencies": {
+    "uuid": "^3.4.0"
+  }
+}

@@ -1,0 +1,107 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: InventoryCRUD-DynamoDB-Table
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: serverless-admin
+  region: ap-south-1
+  stage: dev
+  memorySize: 128
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+
+functions:
+  create:
+    handler: SportsStore/createInventory.create
+    events:
+      - http:
+        path: SportsStore
+        method: post
+        cors: true
+  list:
+    handler: SportsStore/listInventory.list
+    events:
+      - http:
+        path: SportsStore
+        method: get
+        cors: true
+  get:
+    handler: SportsStore/getInventory.get
+    events:
+      - http:
+        path: SportsStore/{inventoryId}
+        method: get
+        cors: true
+  update:
+    handler: SportsStore/updateInventory.update
+    events:
+      - http:
+        path: SportsStore/{inventoryId}
+        method: put
+        cors: true
+  delete:
+    handler: SportsStore/deleteInventory.delete
+    events:
+      - http:
+        path: SportsStore/{inventoryId}
+        method: delete
+        cors: true
+          
+resources:
+  Resources:
+    SportsStoreDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: inventoryId
+            AttributeType: N
+          -
+            AttributeName: inventoryName
+            AttributeType: S
+          -
+            AttributeName: inventoryCount
+            AttributeType: N
+          -
+            AttributeName: inventoryPrice
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: inventoryId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
